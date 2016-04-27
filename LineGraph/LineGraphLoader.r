@@ -1,0 +1,130 @@
+###########################################################################
+#CoxRegression
+#This will load our input files into variables so we can run the cox regression.
+###########################################################################
+
+LineGraph.loader <- function(
+	input.filename,
+	output.file="LineGraph",
+	graphType=""
+)
+{
+ 	######################################################
+	#We need this package for a str_extract when we take text out of the concept.
+	library(stringr)
+	library(plyr)
+	library(ggplot2)
+	library(Cairo)
+	######################################################
+	
+	######################################################
+	#Read the line graph data.
+	line.data<-read.delim(input.filename,header=T)
+	
+	#We need to convert the value column from a factor to a numeric.
+	#finalData$VALUE <- as.numeric(levels(finalData$VALUE))[as.integer(finalData$VALUE)]
+
+	#Aggregate the data to get rid of patient numbers. We add a standard error column so we can use it in the error bars.
+	dataOutput <- ddply(line.data, .(CONCEPT_PATH,GROUP_VAR), 
+	  summarise,
+	  MEAN 		= mean(VALUE),
+	  SD 		= sd(VALUE),
+	  SE 		= sd(VALUE)/sqrt(length(VALUE)),
+	  MEDIAN 	= median(VALUE)
+	)
+
+	#Adjust the column names.
+	colnames(dataOutput) <- c('TIMEPOINT','GROUP','MEAN','SD','SE','MEDIAN')
+
+	#Use a regular expression trim out the timepoint from the concept.
+	#dataOutput$TIMEPOINT <- str_extract(dataOutput$TIMEPOINT,"Week [0-9]+")
+	dataOutput$TIMEPOINT <- str_extract(dataOutput$TIMEPOINT,"(\\\\.+\\\\.+\\\\)+?$")
+	
+	#Convert the timepoint field to a factor.
+	dataOutput$TIMEPOINT <- factor(dataOutput$TIMEPOINT)
+		
+	#Convert the group field to a factor.
+	dataOutput$GROUP <- factor(dataOutput$GROUP)
+	######################################################
+
+	######################################################
+	#Plotting the line.
+
+	#Depending on the graph type, we create a different graph.
+	if(graphType=="MERR")
+	{
+		limits <- aes(ymax = MEAN + SE, ymin = MEAN - SE)
+		
+		p <- ggplot(
+			data=dataOutput,
+			aes(x=TIMEPOINT, 
+				y=MEAN,
+				group=GROUP, 
+				colour=GROUP
+				)
+			)
+
+	}
+
+	if(graphType=="MSTD")
+	{
+		limits <- aes(ymax = MEAN + SD, ymin = MEAN - SD)
+	
+		p <- ggplot(
+			data=dataOutput,
+			aes(x=TIMEPOINT, 
+				y=MEAN,
+				group=GROUP, 
+				colour=GROUP
+				)
+			)
+			
+	}
+	
+	if(graphType=="MEDER")
+	{
+		limits <- aes(ymax = MEDIAN + SE, ymin = MEDIAN - SE)
+		
+		p <- ggplot(
+			data=dataOutput,
+			aes(x=TIMEPOINT, 
+				y=MEDIAN,
+				group=GROUP, 
+				colour=GROUP
+				)
+			)
+	}	
+	
+	p <- p + geom_line(size=1.5) + geom_errorbar(limits,width=0.2) + scale_colour_brewer() 
+	
+	#This sets the color theme of the background/grid.
+	p <- p + theme_bw();
+	
+	#Set the text options for the axis.
+	p <- p + theme(axis.text.x = element_text(size = 17,face="bold",angle=5));
+	p <- p + theme(axis.text.y = element_text(size = 17,face="bold"));
+	
+	#Set the text options for the title.
+	p <- p + theme(axis.title.x = element_text(vjust = -.5,size = 20,face="bold"));
+	p <- p + theme(axis.title.y = element_text(vjust = .35,size = 20,face="bold",angle=90));
+	
+	#Set the legend attributes.
+	p <- p + theme(legend.title = element_text(size = 20,face="bold"));
+	p <- p + theme(legend.text = element_text(size = 15,face="bold"));
+	p <- p + theme(legend.title=element_blank())
+
+	p <- p + geom_point(size=4);
+	
+	#This is the name of the output image file.
+	imageFileName <- paste(output.file,".png",sep="")
+	
+	#This initializes our image capture object.
+	CairoPNG(file=imageFileName, width=1200, height=600,units = "px")	
+	
+	#Printing actually puts the plot in the image.
+	print(p)
+	
+	#Turn of the graphics device to save the image.
+	dev.off()
+	######################################################
+}
