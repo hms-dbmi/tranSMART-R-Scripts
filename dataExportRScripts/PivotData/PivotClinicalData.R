@@ -68,12 +68,17 @@ input.dataFile, snpDataExists, multipleStudies, study
   
   #We need MASS to dump the matrix to a file.
 	require(MASS)
-  filename <- "clinical_i2b2trans.txt"
-	if (multipleStudies) filename <- paste(study, "_clinical_i2b2trans.txt")
-	# DI-811 Removing leading and trailing whitespace
-	trimws(finalData, which = c("both"))
-	#Write the final data file.
-	write.matrix(finalData,filename,sep = "\t")
-  
-  #file.remove(input.dataFile)
+
+  # DI-811 Produce two similarly, yet differently formatted files
+  # since the matrix option leaves padding in place. Remove padding
+  # and wrap character cells in double-quotes, for further processing.
+    filenameCSV <- "clinical_i2b2trans.csv"
+  filenameTAB <- "clinical_i2b2trans.txt"
+	if (multipleStudies) {
+    filenameCSV <- paste(study, "_clinical_i2b2trans.csv")
+    filenameTAB <- paste(study, "_clinical_i2b2trans.txt")
+  }
+  write.table(finalData, file = filenameTAB, row.names = FALSE, eol = "\n", sep = "\t")	
+	write.csv(finalData, file = filename, row.names = FALSE, eol = "\n")
+  file.remove(input.dataFile)
 }
