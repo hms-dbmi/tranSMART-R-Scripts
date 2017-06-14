@@ -70,8 +70,10 @@ input.dataFile, snpDataExists, multipleStudies, study
 	require(MASS)
   filename <- "clinical_i2b2trans.txt"
 	if (multipleStudies) filename <- paste(study, "_clinical_i2b2trans.txt")
+	# DI-811 Removing leading and trailing whitespace
+	trimws(finalData, which = c("both"))
 	#Write the final data file.
 	write.matrix(finalData,filename,sep = "\t")
   
-  file.remove(input.dataFile)
+  #file.remove(input.dataFile)
 }
