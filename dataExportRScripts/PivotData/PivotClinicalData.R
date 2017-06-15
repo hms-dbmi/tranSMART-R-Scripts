@@ -72,13 +72,13 @@ input.dataFile, snpDataExists, multipleStudies, study
   # DI-811 Produce two similarly, yet differently formatted files
   # since the matrix option leaves padding in place. Remove padding
   # and wrap character cells in double-quotes, for further processing.
-    filenameCSV <- "clinical_i2b2trans.csv"
+  filenameCSV <- "clinical_i2b2trans.csv"
   filenameTAB <- "clinical_i2b2trans.txt"
-	if (multipleStudies) {
+  if (multipleStudies) {
     filenameCSV <- paste(study, "_clinical_i2b2trans.csv")
     filenameTAB <- paste(study, "_clinical_i2b2trans.txt")
   }
   write.table(finalData, file = filenameTAB, row.names = FALSE, eol = "\n", sep = "\t")	
-	write.csv(finalData, file = filename, row.names = FALSE, eol = "\n")
+  write.csv(finalData, file = filenameCSV, row.names = FALSE, eol = "\n")
   file.remove(input.dataFile)
 }
