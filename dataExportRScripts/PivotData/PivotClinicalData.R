@@ -74,7 +74,6 @@ input.dataFile, snpDataExists, multipleStudies, study
   # and wrap character cells in double-quotes, for further processing.
   filename <- "clinical_i2b2trans.txt"
   if (multipleStudies) filename <- paste(study, "_clinical_i2b2trans.txt")
-  }
   write.table(finalData, file = filename, row.names = FALSE, eol = "\n", sep = "\t")	
   file.remove(input.dataFile)
 }
