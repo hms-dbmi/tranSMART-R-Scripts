@@ -75,5 +75,5 @@ input.dataFile, snpDataExists, multipleStudies, study
   filename <- "clinical_i2b2trans.txt"
   if (multipleStudies) filename <- paste(study, "_clinical_i2b2trans.txt")
   write.table(finalData, file = filename, row.names = FALSE, eol = "\n", sep = "\t")	
-  file.remove(input.dataFile)
+  #file.remove(input.dataFile)
 }
