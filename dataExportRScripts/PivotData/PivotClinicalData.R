@@ -38,7 +38,7 @@ PivotClinicalData.pivot <- function(input.dataFile, snpDataExists, multipleStudi
   		finalData[i,1] <- rownames(finalData)[i]
   		for( j in 2:ncol(finalData)) {
       			if( colnames(finalData)[j] %in% selection$CONCEPT.PATH){
-        			finalData[i,j] <- selection[ selection$CONCEPT.PATH == colnames(finalData)[j], "VALUE" ]
+        			finalData[i,j] <- selection[ selection$CONCEPT.PATH == colnames(finalData)[j], "VALUE" ][1]
       			}else{
         			finalData[i,j] <- "N/A"
       			}
