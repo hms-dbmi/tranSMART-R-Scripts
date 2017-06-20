@@ -23,7 +23,33 @@
 #Parse the i2b2 output file and create input files for Cox/Survival Curve.
 ###########################################################################
 
-PivotClinicalData.pivot <- 
+PivotClinicalData.pivot <- function(input.dataFile, snpDataExists, multipleStudies, study) {
+	dataFile <- read.delim( file = input.dataFile, header = TRUE, colClasses = "character")
+
+	patientIdList <- unique(dataFile$PATIENT.ID)
+	conceptList <-  c("PATIENT ID",unique(dataFile$CONCEPT.PATH))
+
+	finalData <- matrix(ncol=length(conceptList),nrow=length(patientIdList));
+	colnames(finalData) <- conceptList
+	rownames(finalData) <- patientIdList
+
+	for( i in 1:nrow(finalData)){
+  		selection <- dataFile[ dataFile$PATIENT.ID == rownames(finalData)[i], ]
+  		finalData[i,1] <- rownames(finalData)[i]
+  		for( j in 2:ncol(finalData)) {
+      			if( colnames(finalData)[j] %in% selection$CONCEPT.PATH){
+        			finalData[i,j] <- selection[ selection$CONCEPT.PATH == colnames(finalData)[j], "VALUE" ]
+      			}else{
+        			finalData[i,j] <- "N/A"
+      			}
+  		}
+	}
+	filename <- "clinical_i2b2trans.txt"
+	if (multipleStudies) filename <- paste(study, "_clinical_i2b2trans.txt")
+	write.csv(finalData, file = filename, row.names = FALSE)
+}
+
+PivotClinicalData.pivotDeprecated <- 
 function
 (
 input.dataFile, snpDataExists, multipleStudies, study
