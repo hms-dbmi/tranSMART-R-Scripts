@@ -22,6 +22,38 @@
 #PivotClinicalData
 #Parse the i2b2 output file and create input files for Cox/Survival Curve.
 ###########################################################################
+Logger.debug <- function(msg) {
+  print(paste(format(Sys.time(), "%Y-%m-%d %H:%M:%OS2"), msg))
+}
+
+PivotClinicalData.pivot2 <-function(inputFileName, snpDataExists, multipleStudies, study) {
+
+library(data.table)
+library(reshape2)
+
+  Logger.debug(paste("Start reading input file", inputFileName))
+  dataFile <- fread( file = inputFileName,
+                        header = TRUE,
+                        colClasses = "character")
+  Logger.debug(paste("Finished reading input file", inputFileName))
+
+  subset <- dataFile[, c("PATIENT ID", "CONCEPT_PATH_FULL", "VALUE")]
+  subset$pair <- paste( subset$`PATIENT ID`, subset$`CONCEPT_PATH_FULL`, sep="*")
+  subset <- subset[!duplicated( subset$pair ), ]
+  tt <- acast(subset, subset$`PATIENT ID`~subset$`CONCEPT_PATH_FULL`, value.var="VALUE", fill = " ")
+  finalData <- as.data.frame( tt )
+  finalData$PATIENT_ID <- rownames(finalData)
+  finalData <- finalData[, c(ncol(finalData), 1:ncol(finalData)-1)]
+
+  Logger.debug("Finished processing patient matrix.")
+
+  filename <- "clinical_i2b2trans.csv"
+  if (multipleStudies) filename <- paste(study, "_clinical_i2b2trans.csv")
+  Logger.debug(paste("Write processed data to output file:", filename))
+
+  write.csv(finalData, file = filename, row.names = FALSE)
+  Logger.debug("Done.")
+}
 
 PivotClinicalData.pivot <- function(input.dataFile, snpDataExists, multipleStudies, study) {
 	dataFile <- read.delim( file = input.dataFile, header = TRUE, colClasses = "character")
