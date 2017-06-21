@@ -26,7 +26,7 @@ Logger.debug <- function(msg) {
   print(paste(format(Sys.time(), "%Y-%m-%d %H:%M:%OS2"), msg))
 }
 
-PivotClinicalData.pivot2 <-function(inputFileName, snpDataExists, multipleStudies, study) {
+PivotClinicalData.pivot <-function(inputFileName, snpDataExists, multipleStudies, study) {
 
 library(data.table)
 library(reshape2)
@@ -37,48 +37,26 @@ library(reshape2)
                         colClasses = "character")
   Logger.debug(paste("Finished reading input file", inputFileName))
 
+  Logger.debug("Start sorting input data.")
   subset <- dataFile[, c("PATIENT ID", "CONCEPT_PATH_FULL", "VALUE")]
   subset$pair <- paste( subset$`PATIENT ID`, subset$`CONCEPT_PATH_FULL`, sep="*")
   subset <- subset[!duplicated( subset$pair ), ]
+  Logger.debug("Finished de-duping subset object.")
+
+  Logger.debug("Start acast function run.")
   tt <- acast(subset, subset$`PATIENT ID`~subset$`CONCEPT_PATH_FULL`, value.var="VALUE", fill = " ")
   finalData <- as.data.frame( tt )
   finalData$PATIENT_ID <- rownames(finalData)
   finalData <- finalData[, c(ncol(finalData), 1:ncol(finalData)-1)]
-
   Logger.debug("Finished processing patient matrix.")
 
   filename <- "clinical_i2b2trans.csv"
   if (multipleStudies) filename <- paste(study, "_clinical_i2b2trans.csv")
-  Logger.debug(paste("Write processed data to output file:", filename))
-
+  Logger.debug(paste("Start writing output file:", filename))
   write.csv(finalData, file = filename, row.names = FALSE)
+  Logger.debug(paste("Finished writing output file."))
+	
   Logger.debug("Done.")
-}
-
-PivotClinicalData.pivot <- function(input.dataFile, snpDataExists, multipleStudies, study) {
-	dataFile <- read.delim( file = input.dataFile, header = TRUE, colClasses = "character")
-
-	patientIdList <- unique(dataFile$PATIENT.ID)
-	conceptList <-  c("PATIENT ID",unique(dataFile$CONCEPT.PATH))
-
-	finalData <- matrix(ncol=length(conceptList),nrow=length(patientIdList));
-	colnames(finalData) <- conceptList
-	rownames(finalData) <- patientIdList
-
-	for( i in 1:nrow(finalData)){
-  		selection <- dataFile[ dataFile$PATIENT.ID == rownames(finalData)[i], ]
-  		finalData[i,1] <- rownames(finalData)[i]
-  		for( j in 2:ncol(finalData)) {
-      			if( colnames(finalData)[j] %in% selection$CONCEPT.PATH){
-        			finalData[i,j] <- selection[ selection$CONCEPT.PATH == colnames(finalData)[j], "VALUE" ][1]
-      			}else{
-        			finalData[i,j] <- "N/A"
-      			}
-  		}
-	}
-	filename <- "clinical_i2b2trans.txt"
-	if (multipleStudies) filename <- paste(study, "_clinical_i2b2trans.txt")
-	write.csv(finalData, file = filename, row.names = FALSE)
 }
 
 PivotClinicalData.pivotDeprecated <- 
