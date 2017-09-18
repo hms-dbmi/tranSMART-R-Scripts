@@ -24,22 +24,24 @@
 ###########################################################################
 
 Logger.debug <- function(msg) {
-	cat(msg, file="/mnt/tmp/jobs/Rserve.log", append=TRUE, sep = "\n")
-	print(paste(format(Sys.time(), "%Y-%m-%d %H:%M:%OS2"), msg))
+	cat(paste(format(Sys.time(), "%Y-%m-%d %H:%M:%OS2"), msg), 
+	    file="/mnt/tmp/jobs/Rserve.log", 
+	    append=TRUE, 
+	    sep = "\n"
+	)
 }
 
 # Show current working directory
-
 Logger.debug(paste("Current directory:", getwd(), sep=""))
 
 # Create new function
 PivotClinicalData.pivot <-function(inputFileName, snpDataExists, multipleStudies, study) {
-
-library(data.table)
-library(reshape2)
-
-  Logger.debug(paste("Start reading input file", inputFileName))
-  dataFile <- fread( file = inputFileName,
+	library(data.table)
+	library(reshape2)
+	Logger.debug(paste("PivotClinicalData.pivot() Current directory:", getwd(), sep=""))
+	
+	Logger.debug(paste("Start reading input file", inputFileName))
+	dataFile <- fread( file = inputFileName,
                         header = TRUE,
                         colClasses = "character")
   Logger.debug(paste("Finished reading input file", inputFileName))
