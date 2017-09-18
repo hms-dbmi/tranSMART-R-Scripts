@@ -26,6 +26,10 @@ Logger.debug <- function(msg) {
   print(paste(format(Sys.time(), "%Y-%m-%d %H:%M:%OS2"), msg))
 }
 
+# Show current working directory
+getwd()
+
+# Create new function
 PivotClinicalData.pivot <-function(inputFileName, snpDataExists, multipleStudies, study) {
 
 library(data.table)
