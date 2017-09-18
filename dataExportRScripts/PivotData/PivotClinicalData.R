@@ -40,15 +40,15 @@ PivotClinicalData.pivot <-function(inputFileName, snpDataExists, multipleStudies
 	library(reshape2)
 	Logger.debug(paste("PivotClinicalData.pivot() Current directory:", getwd(), sep=""))
 	
-	Logger.debug(paste("Start reading input file", inputFileName))
+	#Logger.debug(paste("Start reading input file", inputFileName))
 	dataFile <- fread( file = inputFileName,
                         header = TRUE,
                         colClasses = "character")
-  Logger.debug(paste("Finished reading input file", inputFileName))
+  	#Logger.debug(paste("Finished reading input file", inputFileName))
 
-  Logger.debug("Start sorting input data.")
-  subset <- dataFile[, c("PATIENT ID", "CONCEPT_PATH_FULL", "VALUE")]
-  subset$pair <- paste( subset$`PATIENT ID`, subset$`CONCEPT_PATH_FULL`, sep="*")
+  	Logger.debug("Start sorting input data.")
+	subset <- dataFile[, c("PATIENT ID", "CONCEPT_PATH_FULL", "VALUE")]
+  	subset$pair <- paste( subset$`PATIENT ID`, subset$`CONCEPT_PATH_FULL`, sep="*")
   subset <- subset[!duplicated( subset$pair ), ]
   Logger.debug("Finished de-duping subset object.")
 
