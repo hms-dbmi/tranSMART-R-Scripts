@@ -22,12 +22,15 @@
 #PivotClinicalData
 #Parse the i2b2 output file and create input files for Cox/Survival Curve.
 ###########################################################################
+
 Logger.debug <- function(msg) {
-  print(paste(format(Sys.time(), "%Y-%m-%d %H:%M:%OS2"), msg))
+	cat(msg, file="/mnt/tmp/jobs/Rserve.log", append=TRUE, sep = "\n")
+	print(paste(format(Sys.time(), "%Y-%m-%d %H:%M:%OS2"), msg))
 }
 
 # Show current working directory
-getwd()
+
+Logger.debug(paste("Current directory:", getwd(), sep=""))
 
 # Create new function
 PivotClinicalData.pivot <-function(inputFileName, snpDataExists, multipleStudies, study) {
