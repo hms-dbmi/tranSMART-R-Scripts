@@ -32,7 +32,7 @@ library(data.table)
 library(reshape2)
 
   Logger.debug(paste("Start reading input file", inputFileName))
-  dataFile <- fread( file = inputFileName,
+  dataFile <- fread( input = inputFileName,
                         header = TRUE,
                         colClasses = "character")
   Logger.debug(paste("Finished reading input file", inputFileName))
